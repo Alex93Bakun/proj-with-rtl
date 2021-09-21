@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import './App.css';
+
+const getUser = () => Promise.resolve({ id: 1, name: 'Alex' });
 
 const Search = ({ value, onChange, children }) => (
     <div>
@@ -17,6 +19,15 @@ const Search = ({ value, onChange, children }) => (
 
 const App = () => {
     const [search, setSearch] = useState('');
+    const [user, setUser] = useState('');
+
+    useEffect(() => {
+        const loadUser = async () => {
+            const user = await getUser();
+            setUser(user.name);
+        };
+        loadUser();
+    }, []);
 
     const handleChange = ({ target }) => {
         setSearch(target.value);
@@ -24,7 +35,8 @@ const App = () => {
 
     return (
         <div>
-            <img src='' alt='search image' />
+            {user && <h2>Logged in as {user}</h2>}
+            <img className="image" src="" alt="search image" />
             <Search value={search} onChange={handleChange}>
                 Search:
             </Search>
