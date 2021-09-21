@@ -1,27 +1,38 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
 
 describe('App', () => {
-    it('should render App component', () => {
+    test('render App component', async () => {
         render(<App />);
-        expect(screen.queryByText(/Searches for React:/i)).toBeNull();
+        await screen.findByText(/Logged in as/i);
+        expect(screen.queryByText(/Searches for React/i)).toBeNull();
+        fireEvent.change(screen.getByRole('textbox'), {
+            target: { value: 'React' },
+        });
+        expect(screen.queryByText(/Searches for React/i)).toBeInTheDocument();
+    });
+});
+
+describe('events', () => {
+    it('checkbox click', () => {
+        const handleChange = jest.fn();
+        const { container } = render(
+            <input type="checkbox" onChange={handleChange} />
+        );
+        const checkbox = container.firstChild;
+        expect(checkbox).not.toBeChecked();
+        fireEvent.click(checkbox);
+        expect(handleChange).toBeCalledTimes(1);
+        expect(checkbox).toBeChecked();
     });
 
-    it('should render async h2', async () => {
-        render(<App />);
-        expect(screen.queryByText(/Logged in as/i)).toBeNull();
-        expect(await screen.findByText(/Logged in as/i)).toBeInTheDocument();
-    });
-
-    it('image should have a class', () => {
-        render(<App />);
-        expect(screen.getByAltText(/search image/i)).toHaveClass('image');
-    });
-
-    it('form control should not be required', () => {
-        render(<App />);
-        expect(screen.getByLabelText(/Search:/i)).not.toBeRequired();
-        expect(screen.getByLabelText(/Search:/i)).toBeEmptyDOMElement();
-        expect(screen.getByLabelText(/Search:/i)).toHaveAttribute('id');
-    });
+    it('input focus', () => {
+        const { getByTestId } = render(
+            <input type="checkbox" data-testid="simple-input" />
+        );
+        const input = getByTestId('simple-input');
+        expect(input).not.toHaveFocus();
+        input.focus();
+        expect(input).toHaveFocus();
+    })
 });
